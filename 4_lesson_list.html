@@ -1,0 +1,73 @@
+<!-- РЕНДЕРИНГ СПИСКА -->
+<!-- 
+Директива v-for позволяет нам перебирать массив для отображения данных.
+Мы используем псевдоним для элемента в массиве, по которому выполняется итерация, и указываем имя массива, который мы просматриваем. Бывший:v-for="item in items".
+Мы можем перебрать массив объектов и использовать точечную нотацию для отображения значений из объектов.
+При использовании v-for рекомендуется давать каждому визуализируемому элементу свой уникальный ключ.
+ -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Render List</title>
+</head>
+<body>
+  
+  <div id="app">
+    <div class="product">
+      <div class="product-image">
+        <img :src="image" :alt="altText" />
+      </div>
+  
+      <div class="product-info">
+        <h1>{{ product }}</h1>
+        <p v-if="inStock">In Stock</p>
+        <p v-else>Out of Stock</p>
+
+        <ul>
+          <!-- Вывести элементы массива details     -->
+          <li v-for="detail in details">{{ detail }}</li>
+        </ul>
+        <ul>
+          <li v-for="size of sizes">{{size}}</li>
+        </ul>
+
+<!--         Обратите внимание, что при рендеринге таких элементов рекомендуется использовать специальный ключевой атрибут, чтобы Vue мог отслеживать идентификатор каждого узла. Мы добавим это сейчас, используя уникальное variantId свойство нашего варианта. -->
+        <div v-for="variant in variants" :key="variant.variantId">
+          <p>{{ variant.variantColor }}</p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+
+
+  <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+  <script>
+    let app = new Vue({
+      el: '#app',
+      data: {
+        product: 'Socks',
+        image: 'https://footballmall.com.ua/image/cache/catalog/catalog_old/04/4/xnoski-nike-value-quarter-3pk-sx4926-001-original-300x300.jpg.pagespeed.ic.yLEyLbE28z.jpg',
+        altText: 'A pair of socks',
+        inStock: true,
+        details: ['80% cotton', '20% polyester', 'Gender-nautral'],
+        variants: [
+          {
+            variantId: 2234,
+            variantColor: 'green'
+          },
+          {
+            variantId: 2235,
+            variantColor: 'blue'
+          }
+        ],
+        sizes: ['S', 'M', 'L', 'XL', 'XXL', 'XXXL']
+      }
+    })
+  </script>
+</body>
+</html>

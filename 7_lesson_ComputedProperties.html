@@ -1,0 +1,149 @@
+<!-- ВЫЧИСЛЯЕМЫЕ СВОЙСТВА -->
+<!-- 
+Вычисляемые свойства вычисляют значение, а не сохраняют его.
+Вычисляемые свойства могут использовать данные из вашего приложения для вычисления своих значений.
+
+Вычисляемые свойства кэшируются, то есть результат сохраняется до тех пор, пока не изменятся его зависимости. Поэтому при quantityизменении кеш будет очищен, и ** в следующий раз, когда вы получите доступ к значению inStock, он вернет новый результат и кэширует этот результат.
+
+Имея это в виду, более эффективно использовать вычисляемое свойство, а не метод для дорогостоящей операции, которую вы не хотите повторно запускать каждый раз, когда вы к ней обращаетесь.
+
+Также важно помнить, что вы не должны изменять свою модель данных из вычисляемого свойства. Вы просто вычисляете значения на основе других значений. Держите эти функции в чистоте.
+ -->
+
+ <!-- ЗАДАНИЕ: 
+  Добавьте новое логическое свойство данных onSaleи создайте вычисляемое свойство, которое принимает brandи productвыводит onSaleстроку всякий раз , когда onSaleоно истинно. -->
+
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Computed Properties</title>
+    <style>
+      .color-box {
+        display: block;
+        width: 30px;
+        height: 30px;
+        margin: 10px;
+      }
+      .disabledButton {
+        background-color: #d8d8d8;
+      }
+      .outOfStock {
+        text-decoration: line-through;
+      }
+    </style>
+  </head>
+  <body>
+    
+
+
+    <div id="app">
+      <div class="product">
+        <div class="product-image">
+          <img :src="image" :alt="altText" />
+        </div>
+    
+        <div class="product-info">
+          <h1>{{ title }}</h1>
+          <p v-if="inStock">In Stock</p>
+          <p v-else :class="{ outOfStock: !inStock }">Out of Stock</p>
+          <p>{{ sale }}</p> <!-- задание -->
+  
+          <ul>
+            <li v-for="detail in details">{{ detail }}</li>
+          </ul>
+
+          <!-- в    v-for=" теперь добавляем индекс -->
+          <!-- теперь при наведении, в updateProduct мы будем передавать index -->
+          <div class="color-box"
+              v-for="(variant, index) in variants" 
+              :key="variant.variantId"
+              :style="{ backgroundColor: variant.variantColor }"
+              @mouseover="updateProduct(index)"
+              >
+          </div>
+          <button v-on:click="addToCart"
+                  :disabled="!inStock"
+                  :class="{ disabledButton: !inStock }"
+                  >Add to cart</button>
+  
+          <div class="cart">
+            <p>Cart({{ cart }})</p>
+          </div>
+  
+        </div>
+      </div>
+    </div>
+  
+  
+  
+  
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    <script>
+      let app = new Vue({
+        el: '#app',
+        data: {
+          product: 'Socks',
+          brand: 'Vue Mastery',
+          // ЗАМЕНЯЕМ image на selectedVariant (теперь будет по индексу, изначально стоит 0)
+          
+          // image: 'https://footballmall.com.ua/image/cache/catalog/catalog_old/04/4/xnoski-nike-value-quarter-3pk-sx4926-001-original-300x300.jpg.pagespeed.ic.yLEyLbE28z.jpg',
+          selectedVariant: 0,
+          altText: 'A pair of socks',
+          details: ['80% cotton', '20% polyester', 'Gender-nautral'],
+          variants: [
+            {
+              variantId: 2234,
+              variantColor: 'green',
+              variantImage: 'https://footballmall.com.ua/image/cache/catalog/catalog_old/04/4/xnoski-nike-value-quarter-3pk-sx4926-001-original-300x300.jpg.pagespeed.ic.yLEyLbE28z.jpg',
+              variantQuantity: 10  //добавляем количество товара на складе
+            },
+            {
+              variantId: 2235,
+              variantColor: 'blue',
+              variantImage: 'https://www.dim.com/dw/image/v2/AARR_PRD/on/demandware.static/-/Sites-dim-master/default/dwa529f6e2/D026JM2-0HZ_02.jpg?sw=400&sh=400&sm=fit',
+              variantQuantity: 0  //добавляем количество товара на складе
+            }
+          ],
+          cart: 0,
+          onSale: true,  //задание
+        },
+        methods: {
+          addToCart() {
+            this.cart += 1;
+          },
+        //   updateProduct(variantImage) {
+        //   this.image = variantImage;
+        // }
+            //ТЕПЕРЬ ПЕРЕДАДИМ ИНДЕКС И ВМЕСТО ОБНОВЛЕНИЯ this.image ОБНОВИМ this.selectedVariant ИНДЕКСОМ ТОГО ВАРИАНТА, НА КОТОРЫЙ НАВЕДЕН КУРСОР
+          updateProduct(index) {
+            this.selectedVariant = index;
+          }
+        },
+        // поле computed - вычисляемые свойства
+        computed: {
+          title() {
+            return this.brand + ' ' + this.product;
+          },
+          // ТАК КАК МЫ УДАЛИЛИ image И ЗАМЕНИЛИ ЕГО НА selectedVariant
+          image() {
+            return this.variants[this.selectedVariant].variantImage;
+          },
+          //ВМЕСТО inStock ПОЛЯ В data СДЕЛАЕМ МЕТОД
+          /* Теперь, когда мы наводим указатель мыши на синий вариант, количество которого равно нулю, inStock оценивается как false, поскольку 0 означает «ложь» */
+          inStock() {
+            return this.variants[this.selectedVariant].variantQuantity;
+          },
+          sale() {  //задание
+            if(this.onSale) {
+              return this.brand + ' ' + this.product + ' are on sale!'
+            }
+            return this.brand + ' ' + this.product + ' are not on sale'
+          }
+        }
+      })
+    </script>
+  </body>
+  </html>
